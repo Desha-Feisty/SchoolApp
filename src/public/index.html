@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>School App API Tester</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      h2 { margin-top: 28px; }
+      form, .panel { border: 1px solid #ccc; padding: 12px; margin-bottom: 16px; border-radius: 8px; }
+      input, select, button { margin: 6px 0; padding: 6px 8px; }
+      .row { display: flex; gap: 16px; }
+      .col { flex: 1; }
+      pre { background: #f7f7f7; padding: 10px; overflow: auto; }
+      .token { word-break: break-all; }
+      .small { font-size: 12px; color: #555; }
+    </style>
+  </head>
+  <body>
+    <h1>School App API Tester (MVP)</h1>
+    <p class="small">Use local MongoDB (see .env). This UI calls the backend on the same origin.</p>
+
+    <div class="panel">
+      <h2>Auth</h2>
+      <div class="row">
+        <div class="col">
+          <h3>Register</h3>
+          <form id="registerForm">
+            <input type="email" id="regEmail" placeholder="email" required />
+            <input type="text" id="regName" placeholder="name" required />
+            <input type="password" id="regPassword" placeholder="password" required />
+            <select id="regRole">
+              <option value="student">student</option>
+              <option value="teacher">teacher</option>
+            </select>
+            <button type="submit">Register</button>
+          </form>
+        </div>
+        <div class="col">
+          <h3>Login</h3>
+          <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="email" required />
+            <input type="password" id="loginPassword" placeholder="password" required />
+            <button type="submit">Login</button>
+          </form>
+        </div>
+      </div>
+      <div>
+        <strong>Token:</strong>
+        <div id="token" class="token"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Courses</h2>
+      <form id="createCourseForm">
+        <input type="text" id="courseTitle" placeholder="Course title" required />
+        <input type="text" id="courseDescription" placeholder="Description" />
+        <button type="submit">Create Course (teacher)</button>
+      </form>
+      <button id="listCoursesBtn">List My Courses</button>
+      <div id="coursesOut"><pre></pre></div>
+
+      <form id="joinCourseForm">
+        <input type="text" id="joinCourseId" placeholder="Course ID" required />
+        <input type="text" id="joinCode" placeholder="Join Code" required />
+        <button type="submit">Join Course (student)</button>
+      </form>
+
+      <form id="rosterForm">
+        <input type="text" id="rosterCourseId" placeholder="Course ID" required />
+        <button type="submit">Get Roster (teacher)</button>
+      </form>
+      <div id="rosterOut"><pre></pre></div>
+    </div>
+
+    <div class="panel">
+      <h2>Quizzes</h2>
+      <form id="createQuizForm">
+        <input type="text" id="quizCourseId" placeholder="Course ID" required />
+        <input type="text" id="quizTitle" placeholder="Quiz title" required />
+        <input type="datetime-local" id="quizOpenAt" required />
+        <input type="datetime-local" id="quizCloseAt" required />
+        <input type="number" id="quizDuration" placeholder="Duration minutes" value="10" required />
+        <input type="number" id="quizAttempts" placeholder="Attempts allowed" value="1" />
+        <button type="submit">Create Quiz (teacher)</button>
+      </form>
+      <div id="quizOut"><pre></pre></div>
+
+      <form id="addQuestionForm">
+        <input type="text" id="questionQuizId" placeholder="Quiz ID" required />
+        <input type="text" id="questionPrompt" placeholder="Prompt" required />
+        <input type="text" id="choiceA" placeholder="Choice A" required />
+        <input type="text" id="choiceB" placeholder="Choice B" required />
+        <input type="text" id="choiceC" placeholder="Choice C" />
+        <select id="correctChoice">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+        <button type="submit">Add MCQ Question (teacher)</button>
+      </form>
+
+      <form id="publishQuizForm">
+        <input type="text" id="publishQuizId" placeholder="Quiz ID" required />
+        <button type="submit">Publish Quiz (teacher)</button>
+      </form>
+      
+      <h3>Quiz Listing</h3>
+      <form id="listCourseQuizzesForm">
+        <input type="text" id="listCourseId" placeholder="Course ID" required />
+        <button type="submit">List Course Quizzes</button>
+      </form>
+      <div id="courseQuizzesOut"><pre></pre></div>
+      
+      <button id="listAvailableQuizzesBtn">List Available Quizzes (student)</button>
+      <div id="availableQuizzesOut"><pre></pre></div>
+      
+      <form id="getQuizDetailsForm">
+        <input type="text" id="detailQuizId" placeholder="Quiz ID" required />
+        <button type="submit">Get Quiz Details</button>
+      </form>
+      <div id="quizDetailsOut"><pre></pre></div>
+    </div>
+
+    <div class="panel">
+      <h2>Attempt (student)</h2>
+      <form id="startAttemptForm">
+        <input type="text" id="attemptQuizId" placeholder="Quiz ID" required />
+        <button type="submit">Start Attempt</button>
+      </form>
+      <div id="attemptOut"><pre></pre></div>
+
+      <form id="autosaveForm">
+        <input type="text" id="attemptId" placeholder="Attempt ID" required />
+        <input type="text" id="autosaveQuestionId" placeholder="Question ID" required />
+        <input type="text" id="choiceId" placeholder="Choice ID" required />
+        <button type="submit">Autosave Selected Choice</button>
+      </form>
+
+      <form id="submitAttemptForm">
+        <input type="text" id="submitAttemptId" placeholder="Attempt ID" required />
+        <button type="submit">Submit Attempt</button>
+      </form>
+      <form id="resultForm">
+        <input type="text" id="resultAttemptId" placeholder="Attempt ID" required />
+        <button type="submit">Get Result</button>
+      </form>
+      <div id="resultOut"><pre></pre></div>
+    </div>
+
+    <script src="./tester.js"></script>
+  </body>
+</html>
