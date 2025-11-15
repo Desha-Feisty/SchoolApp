@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { Clock, CheckCircle, AlertCircle, Play, Save, Send } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,7 +8,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 const QuizAttempt = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   
   const [quiz, setQuiz] = useState(null);
   const [questions, setQuestions] = useState([]);

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import { Plus, Clock, BarChart3, Eye, Edit3, Trash2, Play } from "lucide-react";
+import { Plus, Clock, BarChart3, Eye, Play } from "lucide-react";
 import { toast } from "sonner";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const QuizManagement = () => {
     const { courseId } = useParams();
-    const { user } = useAuth();
     const [course, setCourse] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);

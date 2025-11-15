@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { Plus, BookOpen, Users, Copy, Trash2, Edit3, Eye } from 'lucide-react';
+import { Plus, BookOpen, Copy, Trash2, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const CourseManagement = () => {
-  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -70,15 +68,6 @@ const CourseManagement = () => {
     }
   };
 
-  const fetchRoster = async (courseId) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/courses/${courseId}/roster`);
-      return response.data.students;
-    } catch (error) {
-      console.error('Error fetching roster:', error);
-      return [];
-    }
-  };
 
   if (loading) {
     return (
@@ -99,7 +88,6 @@ const CourseManagement = () => {
         
         <button
           onClick={() => {
-            console.log('Create Course button clicked, current state:', showCreateForm);
             setShowCreateForm(!showCreateForm);
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { Plus, BookOpen, Users, Clock, BarChart3, Edit } from 'lucide-react';
+import { Plus, BookOpen, Users, Clock, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../components/LoadingSpinner';
 

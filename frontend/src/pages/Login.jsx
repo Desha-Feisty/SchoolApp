@@ -33,11 +33,9 @@ const Login = () => {
 
     try {
       const result = await login(formData.email, formData.password);
-      console.log('Login result:', result); // Debug log
       
       if (result.success) {
         toast.success('Login successful!');
-        console.log('User role:', result.user?.role); // Debug log
         
         // Navigate directly to role-specific dashboard
         if (result.user?.role === 'teacher') {
