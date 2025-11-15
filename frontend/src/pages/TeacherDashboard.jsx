@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { Plus, BookOpen, Users, Clock, BarChart3 } from 'lucide-react';
+import { Plus, BookOpen, Users, Clock, BarChart3, Edit, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -28,8 +28,12 @@ const TeacherDashboard = () => {
       setLoading(true);
       setError(null);
       
+      // Ensure auth header is present
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
       // Fetch teacher's courses
-      const coursesResponse = await axios.get('http://localhost:3000/courses');
+      const coursesResponse = await axios.get('http://localhost:3000/courses', { headers });
       const teacherCourses = coursesResponse.data.courses;
       setCourses(teacherCourses);
       
@@ -41,7 +45,7 @@ const TeacherDashboard = () => {
       
       for (const course of teacherCourses) {
         try {
-          const quizzesResponse = await axios.get(`http://localhost:3000/courses/${course._id}/quizzes`);
+          const quizzesResponse = await axios.get(`http://localhost:3000/quizzes/${course._id}/quizzes`, { headers });
           const courseQuizzes = quizzesResponse.data.quizzes;
           totalQuizzes += courseQuizzes.length;
           
@@ -56,8 +60,8 @@ const TeacherDashboard = () => {
           allQuizzes.push(...courseQuizzes.slice(0, 3)); // Take first 3 quizzes from each course
           
           // Get roster for student count
-          const rosterResponse = await axios.get(`http://localhost:3000/courses/${course._id}/roster`);
-          totalStudents += rosterResponse.data.students.length;
+          const rosterResponse = await axios.get(`http://localhost:3000/courses/${course._id}/roster`, { headers });
+          totalStudents += (rosterResponse.data.roster || []).length;
         } catch (error) {
           console.error(`Error fetching data for course ${course._id}:`, error);
         }
