@@ -158,14 +158,15 @@ async function listMyGrades(req, res) {
       .lean();
     const results = attempts.map(a => ({
       attemptId: a._id,
-      quiz: { _id: a.quiz._id, title: a.quiz.title },
-      course: { _id: a.quiz.course._id, title: a.quiz.course.title },
+      quiz: { _id: a.quiz?._id, title: a.quiz?.title || 'Unknown Quiz' },
+      course: { _id: a.quiz?.course?._id, title: a.quiz?.course?.title || 'Unknown Course' },
       score: a.score,
       submittedAt: a.submittedAt,
       status: a.status,
     }));
     res.json({ results });
   } catch (err) {
+    console.error('listMyGrades error:', err);
     res.status(500).json({ error: 'List my grades failed' });
   }
 }

@@ -37,7 +37,7 @@ const CourseManagement = () => {
     try {
       const response = await axios.post('http://localhost:3000/courses', formData);
       
-      setCourses([response.data, ...courses]);
+      setCourses([response.data.course, ...courses]);
       setFormData({ title: '', description: '' });
       setShowCreateForm(false);
       

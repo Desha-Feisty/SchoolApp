@@ -31,14 +31,17 @@ export const AuthProvider = ({ children }) => {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         try {
-          // Verify token and get user data
-          const response = await axios.get('http://localhost:3000/auth/me');
-          setUser(response.data.user);
+          axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
           setToken(storedToken);
+          const response = await axios.get('http://localhost:3000/auth/me', {
+            headers: { Authorization: `Bearer ${storedToken}` }
+          });
+          setUser(response.data.user);
         } catch (error) {
           console.error('Auth verification failed:', error);
           localStorage.removeItem('token');
           setToken(null);
+          delete axios.defaults.headers.common['Authorization'];
         }
       }
       setLoading(false);
@@ -57,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: userData } = response.data;
       localStorage.setItem('token', newToken);
       setToken(newToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       setUser(userData);
       
       return { success: true, user: userData };
@@ -75,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       const { token: newToken, user: newUser } = response.data;
       localStorage.setItem('token', newToken);
       setToken(newToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       setUser(newUser);
       
       return { success: true };

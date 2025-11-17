@@ -48,13 +48,28 @@ const QuizManagement = () => {
         e.preventDefault();
 
         try {
+            const open = new Date(formData.openAt);
+            const close = new Date(formData.closeAt);
+            if (isNaN(open.getTime()) || isNaN(close.getTime())) {
+                toast.error("Please provide valid open and close dates");
+                return;
+            }
+            if (open >= close) {
+                toast.error("Open date must be before close date");
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
             const response = await axios.post(
                 `http://localhost:3000/quizzes/${courseId}/quizzes`,
                 {
                     ...formData,
                     openAt: new Date(formData.openAt).toISOString(),
                     closeAt: new Date(formData.closeAt).toISOString(),
-                }
+                },
+                { headers }
             );
 
             setQuizzes([response.data.quiz, ...quizzes]);

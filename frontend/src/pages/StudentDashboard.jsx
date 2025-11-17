@@ -25,15 +25,20 @@ const StudentDashboard = () => {
       setLoading(true);
       setError(null);
       
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
       // Fetch available quizzes
-      const quizzesResponse = await axios.get('http://localhost:3000/quizzes/available');
-      setAvailableQuizzes(quizzesResponse.data.quizzes);
+      const quizzesResponse = await axios.get('http://localhost:3000/quizzes/available', { headers });
+      setAvailableQuizzes(quizzesResponse.data.quizzes || []);
       
       // Fetch enrolled courses
-      const coursesResponse = await axios.get('http://localhost:3000/courses');
-      setEnrolledCourses(coursesResponse.data.courses);
-      const gradesResponse = await axios.get('http://localhost:3000/attempts/my');
-      setMyGrades(gradesResponse.data.results);
+      const coursesResponse = await axios.get('http://localhost:3000/courses', { headers });
+      setEnrolledCourses(coursesResponse.data.courses || []);
+      
+      // Fetch my grades
+      const gradesResponse = await axios.get('http://localhost:3000/attempts/my', { headers });
+      setMyGrades(gradesResponse.data.results || []);
       
     } catch (error) {
       console.error('Error fetching student data:', error);
@@ -48,7 +53,9 @@ const StudentDashboard = () => {
     try {
       if (!joinCode.trim()) return;
       setJoining(true);
-      await axios.post('http://localhost:3000/courses/join', { joinCode: joinCode.trim() });
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.post('http://localhost:3000/courses/join', { joinCode: joinCode.trim() }, { headers });
       setJoinCode('');
       toast.success('Joined course successfully');
       await fetchStudentData();
