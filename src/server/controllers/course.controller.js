@@ -39,6 +39,60 @@ async function listMyCourses(req, res) {
   }
 }
 
+async function listAllCourses(req, res) {
+  try {
+    const courses = await Course.find({}).select('-joinCode').lean();
+    res.json({ courses });
+  } catch (err) {
+    res.status(500).json({ error: 'List courses failed' });
+  }
+}
+
+async function getCourse(req, res) {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId).select('-joinCode').lean();
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+
+    if (req.user.role === 'teacher') {
+      if (course.teacher.toString() !== req.user.id) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+    } else {
+      const enrollment = await Enrollment.findOne({ user: req.user.id, course: courseId, status: 'active' }).lean();
+      if (!enrollment) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
+
+    res.json({ course });
+  } catch (err) {
+    res.status(500).json({ error: 'Get course failed' });
+  }
+}
+
+const updateCourseSchema = Joi.object({
+  title: Joi.string().min(2).optional(),
+  description: Joi.string().allow('').optional(),
+}).or('title', 'description');
+
+async function updateCourse(req, res) {
+  try {
+    const { value, error } = updateCourseSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    if (course.teacher.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    if (value.title !== undefined) course.title = value.title;
+    if (value.description !== undefined) course.description = value.description;
+    await course.save();
+    res.json({ course });
+  } catch (err) {
+    res.status(500).json({ error: 'Update course failed' });
+  }
+}
+
 const joinSchema = Joi.object({ joinCode: Joi.string().required() });
 
 async function joinCourse(req, res) {
@@ -109,4 +163,4 @@ async function deleteCourse(req, res) {
   }
 }
 
-module.exports = { createCourse, listMyCourses, joinCourse, joinCourseByCode, getRoster, deleteCourse };
+module.exports = { createCourse, listMyCourses, listAllCourses, getCourse, updateCourse, joinCourse, joinCourseByCode, getRoster, deleteCourse };

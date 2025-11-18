@@ -81,4 +81,8 @@ async function me(req, res) {
   }
 }
 
-module.exports = { register, login, me };
+async function logout(req, res) {
+  res.json({ ok: true });
+}
+
+module.exports = { register, login, me, logout };

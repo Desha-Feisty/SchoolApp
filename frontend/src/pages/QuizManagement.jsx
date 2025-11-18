@@ -31,8 +31,11 @@ const QuizManagement = () => {
             setLoading(true);
 
             // Fetch course details
+            const token = localStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
             const courseResponse = await axios.get(
-                `http://localhost:3000/quizzes/${courseId}/quizzes`
+                `http://localhost:3000/quizzes/course/${courseId}`,
+                { headers }
             );
             setCourse(courseResponse.data.course);
             setQuizzes(courseResponse.data.quizzes);
@@ -92,7 +95,9 @@ const QuizManagement = () => {
 
     const handlePublishQuiz = async (quizId) => {
         try {
-            await axios.post(`http://localhost:3000/quizzes/${quizId}/publish`);
+            const token = localStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            await axios.post(`http://localhost:3000/quizzes/${quizId}/publish`, {}, { headers });
 
             setQuizzes(
                 quizzes.map((quiz) =>
@@ -116,8 +121,11 @@ const QuizManagement = () => {
         setExpandedGrades(nextExpanded);
         if (!currentlyExpanded && !gradesByQuiz[quizId]) {
             try {
+                const token = localStorage.getItem('token');
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
                 const res = await axios.get(
-                    `http://localhost:3000/quizzes/${quizId}/grades`
+                    `http://localhost:3000/quizzes/${quizId}/grades`,
+                    { headers }
                 );
                 setGradesByQuiz({
                     ...gradesByQuiz,

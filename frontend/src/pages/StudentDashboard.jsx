@@ -33,7 +33,7 @@ const StudentDashboard = () => {
       setAvailableQuizzes(quizzesResponse.data.quizzes || []);
       
       // Fetch enrolled courses
-      const coursesResponse = await axios.get('http://localhost:3000/courses', { headers });
+      const coursesResponse = await axios.get('http://localhost:3000/courses/my-courses', { headers });
       setEnrolledCourses(coursesResponse.data.courses || []);
       
       // Fetch my grades

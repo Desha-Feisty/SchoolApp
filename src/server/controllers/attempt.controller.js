@@ -185,3 +185,29 @@ async function listMyGrades(req, res) {
 }
 
 module.exports.listMyGrades = listMyGrades;
+async function startAttemptFromBody(req, res) {
+  try {
+    const { quizId } = req.body || {};
+    if (!quizId) return res.status(400).json({ error: 'quizId is required' });
+    req.params.quizId = quizId;
+    return startAttempt(req, res);
+  } catch (err) {
+    res.status(500).json({ error: 'Start attempt failed' });
+  }
+}
+
+async function getAttemptDetails(req, res) {
+  try {
+    const { attemptId } = req.params;
+    const attempt = await Attempt.findById(attemptId).populate({ path: 'responses.question', model: 'Question' }).populate({ path: 'quiz', select: 'title course', populate: { path: 'course', select: 'title' } });
+    if (!attempt) return res.status(404).json({ error: 'Attempt not found' });
+    if (attempt.user.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    const resp = attempt.responses.map(r => ({ questionId: r.question?._id, prompt: r.question?.prompt, selectedChoiceIds: r.selectedChoiceIds, pointsAwarded: r.pointsAwarded }));
+    res.json({ attempt: { _id: attempt._id, status: attempt.status, score: attempt.score, startedAt: attempt.startedAt, endAt: attempt.endAt, submittedAt: attempt.submittedAt }, quiz: { _id: attempt.quiz?._id, title: attempt.quiz?.title }, course: { _id: attempt.quiz?.course?._id, title: attempt.quiz?.course?.title }, responses: resp });
+  } catch (err) {
+    res.status(500).json({ error: 'Get attempt details failed' });
+  }
+}
+
+module.exports.startAttemptFromBody = startAttemptFromBody;
+module.exports.getAttemptDetails = getAttemptDetails;

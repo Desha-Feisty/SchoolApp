@@ -8,6 +8,8 @@ const authRoutes = require('./routes/auth.routes');
 const courseRoutes = require('./routes/course.routes');
 const quizRoutes = require('./routes/quiz.routes');
 const attemptRoutes = require('./routes/attempt.routes');
+const { authMiddleware, requireRole } = require('./middleware/auth');
+const quizController = require('./controllers/quiz.controller');
 
 const app = express();
 app.use(cors());
@@ -19,9 +21,18 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/docs', express.static(path.join(__dirname, '..', 'docs')));
 
 app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/courses', courseRoutes);
+app.use('/api/courses', courseRoutes);
 app.use('/quizzes', quizRoutes);
+app.use('/api/quizzes', quizRoutes);
 app.use('/attempts', attemptRoutes);
+app.use('/api/attempts', attemptRoutes);
+
+// Question management root-level endpoints
+app.post('/api/questions', authMiddleware, requireRole('teacher'), quizController.addQuestionViaBody);
+app.put('/api/questions/:questionId', authMiddleware, requireRole('teacher'), quizController.updateQuestion);
+app.delete('/api/questions/:questionId', authMiddleware, requireRole('teacher'), quizController.deleteQuestion);
 
 // Basic error handler
 app.use((err, req, res, next) => {

@@ -21,7 +21,9 @@ const CourseManagement = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/courses');
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await axios.get('http://localhost:3000/courses/my-courses', { headers });
       setCourses(response.data.courses);
     } catch (error) {
       console.error('Error fetching courses:', error);

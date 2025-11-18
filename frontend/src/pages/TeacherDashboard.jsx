@@ -45,7 +45,7 @@ const TeacherDashboard = () => {
       
       for (const course of teacherCourses) {
         try {
-          const quizzesResponse = await axios.get(`http://localhost:3000/quizzes/${course._id}/quizzes`, { headers });
+          const quizzesResponse = await axios.get(`http://localhost:3000/quizzes/course/${course._id}`, { headers });
           const courseQuizzes = quizzesResponse.data.quizzes;
           totalQuizzes += courseQuizzes.length;
           

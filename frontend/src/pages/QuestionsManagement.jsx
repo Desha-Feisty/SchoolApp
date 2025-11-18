@@ -29,7 +29,9 @@ const QuestionsManagement = () => {
       setLoading(true);
       
       // Fetch quiz details and questions
-      const quizResponse = await axios.get(`http://localhost:3000/quizzes/${quizId}`);
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const quizResponse = await axios.get(`http://localhost:3000/quizzes/${quizId}`, { headers });
       setQuiz(quizResponse.data.quiz);
       setQuestions(quizResponse.data.questions || []);
       
@@ -63,12 +65,14 @@ const QuestionsManagement = () => {
         }));
       }
       
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const response = await axios.post(`http://localhost:3000/quizzes/${quizId}/questions`, {
         prompt: formData.question, // Backend expects 'prompt' not 'question'
         points: formData.points,
         orderIndex: questions.length, // Add order index
         choices: choices // Backend expects 'choices' not 'options'
-      });
+      }, { headers });
       
       setQuestions([...questions, response.data.question]);
       setFormData({
@@ -109,11 +113,13 @@ const QuestionsManagement = () => {
         }));
       }
       
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const response = await axios.put(`http://localhost:3000/quizzes/${quizId}/questions/${editingQuestion._id}`, {
         prompt: formData.question, // Backend expects 'prompt' not 'question'
         points: formData.points,
         choices: choices // Backend expects 'choices' not 'options'
-      });
+      }, { headers });
       
       setQuestions(questions.map(q => 
         q._id === editingQuestion._id ? response.data.question : q
@@ -140,7 +146,9 @@ const QuestionsManagement = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:3000/quizzes/${quizId}/questions/${questionId}`);
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.delete(`http://localhost:3000/quizzes/${quizId}/questions/${questionId}`, { headers });
       setQuestions(questions.filter(q => q._id !== questionId));
       toast.success('Question deleted successfully!');
     } catch (error) {
