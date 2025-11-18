@@ -36,7 +36,20 @@ async function startAttempt(req, res) {
       console.log(`Enrollment check failed: user ${req.user.id}, course ${quiz.course.toString()}, quiz ${quizId}`);
       return res.status(403).json({ error: 'Not enrolled in course' });
     }
-    
+
+    // Cleanup expired in_progress attempts so they don't block new attempts
+    await Attempt.updateMany(
+      { user: req.user.id, quiz: quiz._id, status: 'in_progress', endAt: { $lte: now.toDate() } },
+      { $set: { status: 'expired' } }
+    );
+
+    // Resume existing active attempt if present
+    const activeAttempt = await Attempt.findOne({ user: req.user.id, quiz: quiz._id, status: 'in_progress', endAt: { $gt: now.toDate() } }).lean();
+    if (activeAttempt) {
+      const questions = await Question.find({ quiz: quiz._id }).sort({ orderIndex: 1 }).lean();
+      return res.status(200).json({ attemptId: activeAttempt._id, endAt: activeAttempt.endAt, questions: questions.map(q => ({ id: q._id, prompt: q.prompt, choices: q.choices.map(c => ({ id: c._id, text: c.text })) })) });
+    }
+
     const taken = await countAttempts(req.user.id, quizId);
     if (taken >= (quiz.attemptsAllowed || 1)) {
       return res.status(400).json({ error: `Attempts exhausted (${taken}/${quiz.attemptsAllowed || 1} used)` });
